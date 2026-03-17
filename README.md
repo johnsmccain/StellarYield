@@ -1,4 +1,6 @@
-
+> ⚠️ **NOTICE FOR DRIPS WAVE REVIEWERS:** > The original Vercel domain submitted in the application (`stellar-yield.vercel.app`) was claimed by a squatter during the final build process. 
+> 
+> **👉 THE OFFICIAL LIVE APPLICATION IS HERE: https://stellaryield.vercel.app**
 # 🌟 StellarYield: AI-Powered DeFi Aggregator & Auto-Vault
 
 ![Stellar](https://img.shields.io/badge/Stellar-Blockchain-black?style=for-the-badge&logo=stellar)
