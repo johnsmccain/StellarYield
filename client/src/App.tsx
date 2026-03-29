@@ -10,6 +10,7 @@ import AIAdvisor from "./components/AIAdvisor";
 import Vault from "./components/Vault";
 import PortfolioPage from "./components/portfolio/PortfolioPage";
 import GovernanceDashboard from "./pages/governance/GovernanceDashboard";
+import QuestsDashboard from "./pages/quests/QuestsDashboard";
 import ConnectWalletButton from "./components/wallet/ConnectWalletButton";
 import { useWallet } from "./context/useWallet";
 import {
@@ -19,6 +20,7 @@ import {
   Landmark,
   PieChart,
   ShieldCheck,
+  Trophy,
 } from "lucide-react";
 import "./index.css";
 
@@ -80,6 +82,12 @@ const RootLayout = () => {
               <ShieldCheck size={18} /> Governance
             </Link>
           )}
+          <Link
+            to="/quests"
+            className="hover:text-white transition-colors flex items-center gap-2"
+          >
+            <Trophy size={18} /> Quests
+          </Link>
         </div>
 
         <ConnectWalletButton />
@@ -122,6 +130,10 @@ const router = createBrowserRouter([
       {
         path: "/governance",
         element: <GovernanceDashboard />,
+      },
+      {
+        path: "/quests",
+        element: <QuestsDashboard />,
       },
     ],
   },

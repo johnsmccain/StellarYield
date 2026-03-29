@@ -443,6 +443,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d7a1e2f27636f116493b8b860f5546edb47c8d8f8ea73e1d2a20be88e28d1fea"
 
 [[package]]
+name = "delta_neutral"
+version = "0.1.0"
+dependencies = [
+ "soroban-sdk",
+ "soroban-token-sdk",
+]
+
+[[package]]
 name = "der"
 version = "0.7.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1637,15 +1645,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "stablecoin_manager"
-version = "0.1.0"
-dependencies = [
- "proptest",
- "soroban-sdk",
- "soroban-token-sdk",
-]
-
-[[package]]
 name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1799,15 +1798,6 @@ name = "unicode-xid"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
-
-[[package]]
-name = "ve_tokenomics"
-version = "0.1.0"
-dependencies = [
- "proptest",
- "soroban-sdk",
- "soroban-token-sdk",
-]
 
 [[package]]
 name = "version_check"
