@@ -743,7 +743,7 @@ mod tests {
 
     #[test]
     fn test_solver_register_and_fill() {
-        let (env, client, admin, _, token_a, token_b, _) = setup_env();
+        let (env, client, _admin, _, token_a, token_b, _) = setup_env();
         let user = Address::generate(&env);
         let solver_addr = Address::generate(&env);
 

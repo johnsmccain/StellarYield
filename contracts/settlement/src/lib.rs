@@ -438,7 +438,7 @@ impl SettlementContract {
             .storage()
             .instance()
             .get(&StorageKey::FeeRecipient)
-            .unwrap();
+            .unwrap_or_else(|| env.current_contract_address());
         let fee_bps: u32 = env
             .storage()
             .instance()
@@ -505,7 +505,7 @@ impl SettlementContract {
         // In production, this would verify ECDSA/Ed25519 signatures
         // For now, we check that signatures are non-empty and the engine is trusted
 
-        if _maker_sig.len() == 0 || _taker_sig.len() == 0 || _engine_sig.len() == 0 {
+        if _maker_sig.is_empty() || _taker_sig.is_empty() || _engine_sig.is_empty() {
             return Err(SettlementError::InvalidSignature);
         }
 
@@ -554,11 +554,20 @@ impl SettlementContract {
             .storage()
             .instance()
             .get(&StorageKey::FeeRecipient)
-            .unwrap();
+            .ok_or(SettlementError::NotInitialized)?;
 
         // Calculate fees (simplified - in production would be more sophisticated)
-        let fee0 = (data.amount0 * fee_bps as i128) / 10_000;
-        let fee1 = (data.amount1 * fee_bps as i128) / 10_000;
+        let fee_bps = fee_bps as i128;
+        let fee0 = data
+            .amount0
+            .checked_mul(fee_bps)
+            .and_then(|fee| fee.checked_div(10_000))
+            .ok_or(SettlementError::InvalidAmount)?;
+        let fee1 = data
+            .amount1
+            .checked_mul(fee_bps)
+            .and_then(|fee| fee.checked_div(10_000))
+            .ok_or(SettlementError::InvalidAmount)?;
 
         if fee0 > 0 {
             let client0 = token::Client::new(env, &data.token0);
@@ -613,7 +622,7 @@ mod tests {
     #[test]
     fn test_initialize() {
         let env = Env::default();
-        let (client, admin, _) = setup_contract(&env);
+        let (client, _admin, _) = setup_contract(&env);
 
         assert!(!client.is_paused());
         let (_, fee_bps) = client.get_fees();

@@ -15,8 +15,6 @@ use soroban_sdk::{
     IntoVal, Map, Val, Vec,
 };
 
-use crate::proxy_wallet::ProxyWalletClient;
-
 // ── Storage Keys ────────────────────────────────────────────────────────
 
 #[contracttype]
@@ -369,7 +367,7 @@ impl WalletFactory {
             .get(&StorageKey::DeployedProxies)
             .unwrap_or(Vec::new(&env));
 
-        Ok(deployed.len() as u32)
+        Ok(deployed.len())
     }
 
     /// Get proxy information by address.

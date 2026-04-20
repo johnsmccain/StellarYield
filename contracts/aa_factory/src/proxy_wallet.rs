@@ -803,7 +803,7 @@ impl ProxyWallet {
         // full WebAuthn challenge verification
 
         // Create the challenge hash that was signed
-        let challenge_data = Self::create_webauthn_challenge(env, owner, nonce);
+        let _challenge_data = Self::create_webauthn_challenge(env, owner, nonce);
 
         // Parse the signature (simplified - production would parse the full structure)
         // For now, we verify that a signature was provided
@@ -824,7 +824,7 @@ impl ProxyWallet {
         Ok(())
     }
 
-    fn create_webauthn_challenge(env: &Env, owner: &Address, nonce: u64) -> Bytes {
+    fn create_webauthn_challenge(env: &Env, _owner: &Address, nonce: u64) -> Bytes {
         // Create a deterministic challenge for WebAuthn verification
         // In production, this would properly hash the owner and nonce
         // For now, we return a simple bytes representation
@@ -844,8 +844,8 @@ impl ProxyWallet {
 
     fn execute_call(
         env: &Env,
-        target: &Address,
-        call_data: &Bytes,
+        _target: &Address,
+        _call_data: &Bytes,
     ) -> Result<ExecutionResult, ProxyError> {
         // Execute the contract call with the provided calldata
         // This is a simplified implementation - production would parse
