@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { loadZapAssetOptions, getVaultTokenFromEnv, getVaultContractIdFromEnv } from "./assets";
+import {
+  loadZapAssetOptions,
+  getVaultTokenFromEnv,
+  getVaultContractIdFromEnv,
+  fetchZapSupportedAssetsMetadata,
+  mergeVaultIntoZapSelectableAssets,
+} from "./assets";
 
 describe("loadZapAssetOptions", () => {
   afterEach(() => {
@@ -56,6 +62,84 @@ describe("getVaultTokenFromEnv", () => {
     vi.stubEnv("VITE_VAULT_TOKEN_DECIMALS", "not-a-number");
     const v = getVaultTokenFromEnv();
     expect(v.decimals).toBe(7);
+  });
+});
+
+describe("fetchZapSupportedAssetsMetadata", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+  });
+
+  it("returns parsed metadata when response is valid", async () => {
+    vi.stubEnv("VITE_API_URL", "http://127.0.0.1:9");
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          assets: [
+            { symbol: "XLM", name: "X", contractId: "CDXLM", decimals: 7 },
+          ],
+          vaultToken: {
+            symbol: "USDC",
+            name: "Vault asset",
+            contractId: "CDV",
+            decimals: 6,
+          },
+          vaultContractId: "CDY",
+        }),
+        { status: 200 },
+      ),
+    );
+
+    const meta = await fetchZapSupportedAssetsMetadata();
+    expect(meta?.vaultContractId).toBe("CDY");
+    expect(meta?.assets).toHaveLength(1);
+  });
+
+  it("returns null when response is not ok", async () => {
+    vi.stubEnv("VITE_API_URL", "http://127.0.0.1:9");
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("", { status: 500 }));
+
+    await expect(fetchZapSupportedAssetsMetadata()).resolves.toBeNull();
+  });
+
+  it("returns null when JSON shape is invalid", async () => {
+    vi.stubEnv("VITE_API_URL", "http://127.0.0.1:9");
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ assets: "nope" }), { status: 200 }),
+    );
+
+    await expect(fetchZapSupportedAssetsMetadata()).resolves.toBeNull();
+  });
+});
+
+describe("mergeVaultIntoZapSelectableAssets", () => {
+  it("appends vault token when missing from inputs", () => {
+    const vault = {
+      symbol: "USDC",
+      name: "Vault asset",
+      contractId: "CDV",
+      decimals: 6,
+    };
+    const merged = mergeVaultIntoZapSelectableAssets(
+      [{ symbol: "XLM", name: "X", contractId: "CDXLM", decimals: 7 }],
+      vault,
+    );
+    expect(merged.some((a) => a.contractId === "CDV")).toBe(true);
+  });
+
+  it("does not duplicate vault token contract", () => {
+    const vault = {
+      symbol: "USDC",
+      name: "Vault asset",
+      contractId: "CDV",
+      decimals: 6,
+    };
+    const merged = mergeVaultIntoZapSelectableAssets(
+      [{ symbol: "USDC", name: "U", contractId: "CDV", decimals: 6 }],
+      vault,
+    );
+    expect(merged.filter((a) => a.contractId === "CDV")).toHaveLength(1);
   });
 });
 
