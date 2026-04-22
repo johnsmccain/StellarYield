@@ -8,10 +8,18 @@ export default defineConfig({
     globals: true,
     coverage: {
       provider: "v8",
-      include: ["src/components/calculator/**/*.{ts,tsx}"],
+      include: [
+        "src/features/zap/**/*.ts",
+        "src/utils/errorDecoder.ts",
+      ],
       exclude: [
-        "src/**/*.test.{ts,tsx}",
-        "src/**/*.stories.{ts,tsx}",
+        "src/**/*.test.ts",
+        "src/features/zap/types.ts",
+        "src/features/zap/index.ts",
+        "src/features/zap/ZapDepositPanel.tsx",
+        // vestingService contains Soroban RPC + Freighter integration code that
+        // requires a live node — covered by integration tests, not unit coverage.
+        "src/pages/vesting/vestingService.ts",
       ],
       thresholds: {
         lines: 90,
