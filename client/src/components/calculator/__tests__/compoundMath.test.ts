@@ -1,10 +1,11 @@
+import { describe, it, expect } from 'vitest';
+import type { CompoundConfig } from '../compoundMath';
 import {
   calculateCompoundProjection,
   calculateProjectionMetrics,
   formatCurrency,
   formatPercentage,
   validateConfig,
-  CompoundConfig,
 } from '../compoundMath';
 
 describe('Compound Math Utilities', () => {

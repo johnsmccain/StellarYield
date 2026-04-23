@@ -64,11 +64,7 @@ export function calculateCompoundProjection(config: CompoundConfig): ProjectionP
   // Daily compounding
   const compoundsPerYear = 365;
   const dailyRate = annualRate / compoundsPerYear;
-  
-  // Monthly contribution equivalent for daily compounding
-  // Each monthly contribution compounds for the remaining days in the period
-  const monthlyRate = annualRate / 12;
-  
+
   const projections: ProjectionPoint[] = [];
   let currentPrincipal = principal;
   let totalContributions = principal;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   AreaChart,
   Area,
@@ -17,34 +17,66 @@ import {
   Percent,
   Info,
 } from 'lucide-react';
+import type { CompoundConfig } from './compoundMath';
 import {
   calculateCompoundProjection,
   calculateProjectionMetrics,
   formatCurrency,
   formatPercentage,
   validateConfig,
-  CompoundConfig,
-  ProjectionPoint,
 } from './compoundMath';
 
-/**
- * Yield Calculator Component
- * 
- * Interactive calculator for visualizing compound interest with daily compounding.
- * Features sliders for input parameters and dynamic chart visualization.
- */
+interface TooltipPayloadEntry {
+  payload: {
+    label: string;
+    compound: number;
+    simple: number;
+    principal: number;
+  };
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayloadEntry[];
+}
+
+function CustomTooltip({ active, payload }: CustomTooltipProps) {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-slate-900 border border-slate-700 rounded-lg p-4 shadow-xl">
+        <p className="text-white font-semibold mb-2">{data.label}</p>
+        <div className="space-y-1 text-sm">
+          <p className="text-green-400">
+            Yield Farming: {formatCurrency(data.compound)}
+          </p>
+          <p className="text-blue-400">
+            Simple Interest: {formatCurrency(data.simple)}
+          </p>
+          <p className="text-gray-400">
+            Principal Only: {formatCurrency(data.principal)}
+          </p>
+        </div>
+      </div>
+    );
+  }
+  return null;
+}
+
+function timeframeForYears(years: number): '1' | '5' | '10' {
+  if (years >= 10) return '10';
+  if (years >= 5) return '5';
+  return '1';
+}
+
 export default function YieldCalculator() {
-  // State for input parameters
   const [principal, setPrincipal] = useState(10000);
   const [monthlyContribution, setMonthlyContribution] = useState(500);
   const [apy, setApy] = useState(8.5);
   const [years, setYears] = useState(5);
-  
-  // State for UI interactions
   const [showTooltip, setShowTooltip] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState<'1' | '5' | '10'>('5');
 
-  // Configuration object
   const config: CompoundConfig = useMemo(() => ({
     principal,
     monthlyContribution,
@@ -52,16 +84,13 @@ export default function YieldCalculator() {
     years,
   }), [principal, monthlyContribution, apy, years]);
 
-  // Validate configuration
   const errors = useMemo(() => validateConfig(config), [config]);
 
-  // Calculate projections
   const projections = useMemo(() => {
     if (errors.length > 0) return [];
     return calculateCompoundProjection(config);
   }, [config, errors]);
 
-  // Calculate metrics
   const metrics = useMemo(() => {
     if (projections.length === 0) {
       return {
@@ -75,20 +104,11 @@ export default function YieldCalculator() {
     return calculateProjectionMetrics(projections);
   }, [projections]);
 
-  // Filter projections for selected timeframe
   const filteredProjections = useMemo(() => {
     const maxMonths = parseInt(selectedTimeframe) * 12;
     return projections.filter(p => p.period <= maxMonths);
   }, [projections, selectedTimeframe]);
 
-  // Update timeframe when years change
-  useEffect(() => {
-    if (years >= 10) setSelectedTimeframe('10');
-    else if (years >= 5) setSelectedTimeframe('5');
-    else setSelectedTimeframe('1');
-  }, [years]);
-
-  // Format data for chart
   const chartData = useMemo(() => {
     return filteredProjections.map(point => ({
       month: point.period,
@@ -100,29 +120,11 @@ export default function YieldCalculator() {
     }));
   }, [filteredProjections]);
 
-  // Custom tooltip for chart
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-slate-900 border border-slate-700 rounded-lg p-4 shadow-xl">
-          <p className="text-white font-semibold mb-2">{data.label}</p>
-          <div className="space-y-1 text-sm">
-            <p className="text-green-400">
-              Yield Farming: {formatCurrency(data.compound)}
-            </p>
-            <p className="text-blue-400">
-              Simple Interest: {formatCurrency(data.simple)}
-            </p>
-            <p className="text-gray-400">
-              Principal Only: {formatCurrency(data.principal)}
-            </p>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
+  function handleYearsChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const newYears = Number(e.target.value);
+    setYears(newYears);
+    setSelectedTimeframe(timeframeForYears(newYears));
+  }
 
   if (errors.length > 0) {
     return (
@@ -244,7 +246,7 @@ export default function YieldCalculator() {
               max="30"
               step="1"
               value={years}
-              onChange={(e) => setYears(Number(e.target.value))}
+              onChange={handleYearsChange}
               className="flex-1 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider"
             />
             <span className="text-white font-mono min-w-[60px] text-right">
@@ -371,7 +373,7 @@ export default function YieldCalculator() {
         </p>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .slider::-webkit-slider-thumb {
           appearance: none;
           width: 16px;
@@ -393,9 +395,6 @@ export default function YieldCalculator() {
   );
 }
 
-/**
- * Metric card component
- */
 interface MetricCardProps {
   label: string;
   value: string;
