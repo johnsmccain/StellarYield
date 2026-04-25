@@ -57,6 +57,7 @@ export function AddressAutocomplete({
     }
 
     setIsSearching(true);
+    setIsOpen(true); // Open dropdown immediately to show loading state
     try {
       const results = await getSuggestions(inputValue);
       setSuggestions(results);
@@ -195,8 +196,8 @@ export function AddressAutocomplete({
           className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
         >
           {isSearching && (
-            <div className="px-4 py-3 text-gray-400 text-center">
-              <span className="animate-spin inline-block mr-2">⟳</span>Searching...
+            <div className="px-4 py-3 text-gray-400 text-center" data-testid="searching-indicator">
+              Searching...
             </div>
           )}
           {!isSearching && suggestions.length === 0 && (

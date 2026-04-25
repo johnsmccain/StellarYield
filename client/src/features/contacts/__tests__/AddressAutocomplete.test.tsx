@@ -230,7 +230,7 @@ describe('AddressAutocomplete', () => {
 
     // Should show searching state in dropdown
     await waitFor(() => {
-      expect(screen.getByText(/Searching/i)).toBeInTheDocument();
+      expect(screen.getByTestId('searching-indicator')).toBeInTheDocument();
     });
   });
 
@@ -353,7 +353,7 @@ describe('AddressAutocomplete', () => {
     });
 
     // Click outside
-    fireEvent.click(screen.getByTestId('outside-element'));
+    fireEvent.mouseDown(screen.getByTestId('outside-element'));
 
     // Dropdown should close (no longer visible)
     await waitFor(() => {
